@@ -4,20 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Predictor Website</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Stock Prediction</h1><br>
-<form method="POST" action ="/">
-    <label for="stock">Enter Stock Symbol:</label>
-    <input type="text" id="stock" value="Insert Stock Symbol" required>
-    <input type="submit" value="Predict">
-</form>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Stock Prediction</h1>
+        <form method="POST" action="/" class="form-inline justify-content-center">
+            <div class="form-group mx-sm-3 mb-2">
+                <label for="stock" class="sr-only">Enter Stock Symbol:</label>
+                <input type="text" id="stock" name="stock" class="form-control" placeholder="Insert Stock Symbol" required>
+            </div>
+            <button type="submit" class="btn btn-primary mb-2">Predict</button>
+        </form>
 
-{% if prediction_message %}
-<div class="message">
-    <h2>{{ prediction_message }}</h2>
-</div>
-{% endif %}
+        {% if prediction_message %}
+        <div class="alert alert-info mt-4">
+            <h2 class="text-center">{{ prediction_message }}</h2>
+        </div>
+        {% endif %}
+    </div>
 
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
