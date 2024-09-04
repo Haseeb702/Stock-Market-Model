@@ -1,3 +1,4 @@
+from flask import Flask, render_template, request
 import requests
 import pandas as pd
 import numpy as np
@@ -8,14 +9,24 @@ from tensorflow import keras
 import matplotlib.pyplot as plt
 
 def stock_predict(stock):
-    #url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={stock}&apikey=Y0ZWS1FQO8I2RYPY&datatype=csv&outputsize=full'
+    url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={stock}&apikey=Y0ZWS1FQO8I2RYPY&datatype=csv&outputsize=full'
     #request json
-    #response = requests.get(url) 
-    # do error catching with .request == 200
-    #df = pd.read_csv(io.StringIO(response.text)) #converts csv into pandas df
+    response = requests.get(url) 
+    if response.status_code != 200:
+        return "Error fetching data from Alpha Vantage."
+    df = pd.read_csv(io.StringIO(response.text)) #converts csv into pandas df
 
-    df = pd.read_csv('daily_AAPL.csv')
+   # df = pd.read_csv('daily_AAPL.csv')
     df = df.iloc[::-1]
+
+    print(df.head())  # Print the first few rows to check the content
+
+    if 'close' not in df.columns:
+        return "Data does not contain 'close' column."
+
+    close_data = df.filter(['close'])
+    if close_data.empty:
+        return "No data available for the specified stock."
 
     close_data = df.filter(['close'])
     dataset = close_data.values # a 2d array of the close data
@@ -86,6 +97,11 @@ def stock_predict(stock):
     future_predictions = np.array(future_predictions).reshape(-1, 1)
     future_predictions = scaler.inverse_transform(future_predictions)
 
+    # Get the current stock price (latest close price)
+    current_price = df.iloc[-1]["close"]
+
+    # Get the final predicted price (the last predicted price)
+    final_predicted_price = future_predictions[-1][0]
 
     plt.figure(figsize=(16, 8))
     plt.plot(np.arange(len(dataset)), dataset, label='Historical Data')
@@ -97,7 +113,23 @@ def stock_predict(stock):
     plt.legend()
     plt.show()
     
+    if final_predicted_price > current_price:
+        return "This stock is a good buy!"
+    else:
+        return "This stock is a bad buy!"
+
+
+app = Flask(__name__)
+
+@app.route("/", methods=['GET', 'POST'])
+def index():
+    prediction_message = ""
+    if request.method == 'POST':
+        stock_symbol = request.form.get('stock')
+        prediction_message = stock_predict(stock_symbol)
+
+    return render_template("index.html", prediction_message=prediction_message)
     
-
-
-stock_predict('IBM')
+    
+if __name__ == '__main__':
+    app.run(debug=True)
