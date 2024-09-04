@@ -97,7 +97,7 @@ def stock_predict(stock):
     plt.legend()
     plt.show()
     
-    return 1
+    
 
 
 stock_predict('IBM')
